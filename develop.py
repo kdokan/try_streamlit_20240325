@@ -40,9 +40,21 @@ data = data[data["ds"] >= "2020-01-19"]
 data.to_csv('data/input.csv', index=False)  
 
 # %%
+y = "バファリン_Google検索数"
 data = pd.read_csv('data/input.csv')
 data_cor = data.drop(columns="ds")
-data_cor = data_cor.corr()
-data_cor = data_cor["バファリン_Google検索数"]
+data_cor = data_cor.corr()[y]
 data_cor = data_cor.sort_values(ascending=False)
+data_cor = data_cor[data_cor.index != y]
+data_cor
+# %%
+data_cor_top_3 = data_cor.nlargest(2).index
+# %%
+y = "バファリン_Google検索数"
+data_cor_top3_for_plot = data[["ds", y] + list(data_cor_top_3)]
+data_cor_top3_for_plot.drop("ds")
+
+# %%
+data_cor = data_cor.corr()
+#data_cor = data_cor[data_cor[y] != y]
 # %%

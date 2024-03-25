@@ -18,13 +18,33 @@ if upload_file is not None:
         )
     
     data_cor = data.drop(columns="ds")
-    data_cor = data_cor.corr()
-    data_cor = data_cor[data_cor['バファリン_Google検索数'] != 'バファリン_Google検索数']
-    data_cor = data_cor["バファリン_Google検索数"]
+
+    st.header("目的変数選択")
+    y = st.radio("目的変数を選択してください", data_cor.columns)
+
+    data_cor = data_cor.corr()[y]
+    data_cor = data_cor.sort_values(ascending=False)
+    data_cor = data_cor[data_cor.index != y]
     data_cor = data_cor.sort_values(ascending=False)
 
-    st.header("相関ランキング")
+    st.header("目的変数に対する相関ランキング")
     st.write(data_cor)
+
+    # 相関上位2つだけPLOT
+    data_cor_top_3 = data_cor.head(2).index.tolist()
+    data_cor_top3_for_plot = data[["ds", y] + data_cor_top_3]
+    
+    usecols = st.multiselect(
+            '比較したいカラムを2つ入れてください',
+            list(data_cor_top3_for_plot.drop(columns="ds").columns),
+            list(data_cor_top3_for_plot.drop(columns="ds").columns))
+
+    # グラフの描画
+    fig = px.line(data_cor_top3_for_plot, x='ds', y=usecols, title='時系列PLOT')
+    fig.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+
+    # プロットをStreamlitで表示
+    st.plotly_chart(fig)
 
 #st.markdown('### アクセスログ（先頭5件）')
 #st.write(data.head(5))
